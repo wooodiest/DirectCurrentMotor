@@ -32,7 +32,8 @@ project "DirectCurrentMotor"
 
 	defines
 	{
-		"YAML_CPP_STATIC_DEFINE"
+		"YAML_CPP_STATIC_DEFINE",
+		"_USE_MATH_DEFINES"
 	}
 
 	filter "system:windows"

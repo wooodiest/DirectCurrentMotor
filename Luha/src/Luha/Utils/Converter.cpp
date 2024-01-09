@@ -1,6 +1,7 @@
 #include "lhpch.h"
 
 #include "Luha/Utils/Converter.h"
+#include <cmath>
 
 namespace Utils {
 
@@ -22,6 +23,16 @@ namespace Utils {
 	glm::vec4 ImVec4_To_GlmVec4(const ImVec4& vec)
 	{
 		return { vec.x, vec.y, vec.z, vec.w };
+	}
+
+	float DegToRad(float deg)
+	{
+		return deg * M_PI / 180.0f;
+	}
+
+	float RadToDeg(float rad)
+	{
+		return rad * 180.0f / M_PI;
 	}
 	
 }

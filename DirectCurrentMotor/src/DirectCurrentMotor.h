@@ -2,9 +2,27 @@
 
 #include <Luha.h>
 
-#include <glm/glm.hpp>
+#include <cmath>
 
 namespace DCM {
+
+	struct MotorSpecification
+	{
+		float Current         = 240.0f;
+		float MagneticField   = 1.0f;
+		float FrameSide_A     = 1.0f;
+		float FrameSide_B     = 2.0f;
+		float Alpha           = 1.5707963268; // radians
+		float Mass            = 1.0f;
+		float AngularVelocity = 1.0f;
+		int   NumberOfWires   = 1;
+	};
+
+	enum class DCM_Windows
+	{
+		Simulation = 0,
+		Torque, Inertia, Engine
+	};
 
 	class DirectCurrentMotor : public Luha::Layer
 	{
@@ -23,6 +41,37 @@ namespace DCM {
 		// To save and load data safely, decide when to use it. Luha only calls Serialize() when saved (Ctrl+S)
 		virtual void Serialize() override;
 		virtual void Deserialize() override;
+
+	private:
+		void Display_Torque();
+		void Display_Inertia();
+		void Display_Engine();
+
+	private:
+		// Torque
+		MotorSpecification m_TorqueSpec;
+		float m_TorqueTorque;
+
+		// Inertia
+		MotorSpecification m_InertiaSpec;
+		float m_InertiaInertia;
+
+		// Engine
+		MotorSpecification m_EngineSpec;
+		MotorSpecification m_EngineCurrentSpec;
+		float m_EngineDeltaTime        = 0.01f;
+		float m_EngineCurrentDeltaTime = 0.01f;
+		float m_EngineCurrentLiveTime  = 0.0f;
+		float m_EngineInertia;
+		float m_Engine_K, m_Engine_KI;
+		float m_EnginePrevAngularVelocity, m_EnginePrevAlpha;
+		bool  m_EnginePaused           = true;
+		Utils::ScrollingBuffer m_EngineAlpha               { 5000 };
+		Utils::ScrollingBuffer m_EngineAngularVelocity     { 5000 };
+		Utils::ScrollingBuffer m_EngineAngularAcceleration { 5000 };
+		Utils::ScrollingBuffer m_EngineTorque              { 5000 };
+
+		DCM_Windows m_LastFocused = DCM_Windows::Simulation;
 
 	};
 

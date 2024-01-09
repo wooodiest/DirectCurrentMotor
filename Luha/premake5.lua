@@ -24,7 +24,8 @@ project "Luha"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"YAML_CPP_STATIC_DEFINE"
+		"YAML_CPP_STATIC_DEFINE",
+		"_USE_MATH_DEFINES"
 	}
 
 	includedirs
