@@ -1,0 +1,19 @@
+[submodule "Luha/vendor/spdlog"]
+	path = Luha/vendor/spdlog
+	url = https://github.com/wooodiest/spdlog
+[submodule "Luha/vendor/GLFW"]
+	path = Luha/vendor/GLFW
+	url = https://github.com/wooodiest/glfw
+[submodule "Luha/vendor/glm"]
+	path = Luha/vendor/glm
+	url = https://github.com/wooodiest/glm
+[submodule "Luha/vendor/imgui"]
+	path = Luha/vendor/imgui
+	url = https://github.com/wooodiest/imgui.git
+	branch = docking
+[submodule "Luha/vendor/implot"]
+	path = Luha/vendor/implot
+	url = https://github.com/wooodiest/implot
+[submodule "Luha/vendor/yaml"]
+	path = Luha/vendor/yaml
+	url = https://github.com/wooodiest/yaml-cpp
