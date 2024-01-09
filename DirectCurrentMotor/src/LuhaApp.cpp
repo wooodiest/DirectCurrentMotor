@@ -1,12 +1,12 @@
 #include <Luha.h>
 #include <Luha/Core/EntryPoint.h>
 
-#include <ExampleLayer.h>
+#include <DirectCurrentMotor.h>
 
 Luha::Application* Luha::CreateApplication(int argc, char** argv)
 {
 	Luha::ApplicationSpecification spec;
-	spec.Name              = "Luha Application";
+	spec.Name              = "Direct-Current Motor";
 	spec.Window_Width      = 1600;
 	spec.Window_Height     = 900;
 	spec.Window_Min_Width  = 1280;
@@ -23,7 +23,7 @@ Luha::Application* Luha::CreateApplication(int argc, char** argv)
 	spec.FontSize          = 20.0f;
 
 	Luha::Application* app = new Luha::Application(spec);
-	app->PushLayer(new ExampleApp::ExampleLayer());
+	app->PushLayer(new DCM::DirectCurrentMotor());
 
 	return app;
 }

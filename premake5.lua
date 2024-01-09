@@ -1,10 +1,10 @@
 include "Dependencies.lua"
 
-workspace "LuhaApp"
+workspace "DirectCurrentMotor"
     architecture "x64"
     configurations { "Debug", "Release", "Dist" }
     flags { "MultiProcessorCompile" }
-    startproject "LuhaApp"
+    startproject "DirectCurrentMotor"
 
     filter "system:windows"
     buildoptions { "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus" }
@@ -19,4 +19,4 @@ group "Dependencies"
 group ""
 
 include "Luha"
-include "LuhaApp"
+include "DirectCurrentMotor"

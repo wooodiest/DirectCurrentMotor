@@ -1,4 +1,4 @@
-project "LuhaApp"
+project "DirectCurrentMotor"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"

@@ -4,13 +4,13 @@
 
 #include <glm/glm.hpp>
 
-namespace ExampleApp {
+namespace DCM {
 
-	class ExampleLayer : public Luha::Layer
+	class DirectCurrentMotor : public Luha::Layer
 	{
 	public:
-		ExampleLayer();
-		virtual ~ExampleLayer();
+		DirectCurrentMotor();
+		virtual ~DirectCurrentMotor();
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
@@ -23,11 +23,6 @@ namespace ExampleApp {
 		// To save and load data safely, decide when to use it. Luha only calls Serialize() when saved (Ctrl+S)
 		virtual void Serialize() override;
 		virtual void Deserialize() override;
-
-	private:
-		std::string m_Character = "";
-		glm::vec4 m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		Luha::Image m_Image;
 
 	};
 

@@ -1,19 +1,19 @@
-Name: Luha Application
+Name: Direct Current Motor
 Window_Width: 1504
-Window_Height: 873
+Window_Height: 871
 Window_Min_Width: 1280
 Window_Min_Height: 720
 Window_Max_Width: 0
 Window_Max_Height: 0
 Window_Resizeable: true
-VSync: false
+VSync: true
 MenuBar: true
 ColorThema: 1
 PlotThema: 1
 PlotColor_Map: 0
 Font: 1
-FontSize: 20
+FontSize: 22.5
 LogToFile: true
 LogToConsole: true
-LuhaLogLevel: 0
+LuhaLogLevel: 2
 AppLogLevel: 0
