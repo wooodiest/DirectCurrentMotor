@@ -1,6 +1,6 @@
 Name: Direct Current Motor
-Window_Width: 1920
-Window_Height: 1017
+Window_Width: 1717
+Window_Height: 814
 Window_Min_Width: 1280
 Window_Min_Height: 720
 Window_Max_Width: 0
@@ -12,7 +12,7 @@ ColorThema: 1
 PlotThema: 1
 PlotColor_Map: 3
 Font: 1
-FontSize: 18
+FontSize: 22.5
 LogToFile: true
 LogToConsole: true
 LuhaLogLevel: 2

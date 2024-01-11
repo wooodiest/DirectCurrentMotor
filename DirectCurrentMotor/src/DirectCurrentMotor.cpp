@@ -75,18 +75,36 @@ namespace DCM {
 		Display_Engine();
 		ImGui::End();
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("   Simulation   ");
 		switch (m_LastFocused)
 		{	
-			case DCM::DCM_Windows::Torque:  ImGui::Text("Torque");  break;
-			case DCM::DCM_Windows::Inertia: ImGui::Text("Inertia"); break;
-			case DCM::DCM_Windows::Engine:  ImGui::Text("Engine");  break;
+			case DCM::DCM_Windows::Torque:  m_Engine.SetData(m_TorqueSpec,        m_TorqueCamera);  break;
+			case DCM::DCM_Windows::Inertia: m_Engine.SetData(m_InertiaSpec,       m_InertiaCamera); break;
+			case DCM::DCM_Windows::Engine:  m_Engine.SetData(m_EngineCurrentSpec, m_EngineCamera);  break;
 		}
 		ImGui::Separator();
+
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-		// ImGui::Image(); // Simulation texture
-		ImGui::Text("%f %f", viewportSize.x, viewportSize.y);
+		m_Engine.SetViewportSize(viewportSize.x, viewportSize.y);
+		m_TorqueCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+		m_InertiaCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+		m_EngineCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+
+		m_EngineActive = ImGui::IsWindowFocused();
+		if(m_EngineActive)
+			m_Engine.GetCamera()->OnUpdate(Luha::Application::Get().GetDeltaTime());
+
+		m_Engine.OnUpdate(Luha::Application::Get().GetDeltaTime());
+
+		uint32_t textureID = m_Engine.GetData();
+		ImGui::Image((void*)textureID, viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		
+		ImGui::End();
+		ImGui::PopStyleVar();
+
+		ImGui::Begin("Stats");
+		ImGui::Text("JD");
 		ImGui::End();
 	}
 
@@ -98,7 +116,8 @@ namespace DCM {
 
 	void DirectCurrentMotor::OnEvent(Luha::Event& event)
 	{
-
+		if(m_EngineActive)
+			m_Engine.OnEvent(event);
 	}
 
 	void DirectCurrentMotor::Display_Torque()

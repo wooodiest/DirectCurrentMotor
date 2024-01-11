@@ -3,20 +3,14 @@
 #include <Luha.h>
 
 #include <cmath>
+#include <memory>
+
+#include "Engine.h"
+#include "MotorSpecification.h"
+#include "Engine.h"
+#include "Camera.h"
 
 namespace DCM {
-
-	struct MotorSpecification
-	{
-		float Current         = 240.0f;
-		float MagneticField   = 1.0f;
-		float FrameSide_A     = 1.0f;
-		float FrameSide_B     = 2.0f;
-		float Alpha           = 1.5707963268; // radians
-		float Mass            = 1.0f;
-		float AngularVelocity = 1.0f;
-		int   NumberOfWires   = 1;
-	};
 
 	enum class DCM_Windows
 	{
@@ -48,16 +42,21 @@ namespace DCM {
 		void Display_Engine();
 
 	private:
+		Engine m_Engine;
+		bool m_EngineActive = false;
 		// Torque
 		MotorSpecification m_TorqueSpec;
+		Camera m_TorqueCamera;
 		float m_TorqueTorque;
 
 		// Inertia
 		MotorSpecification m_InertiaSpec;
+		Camera m_InertiaCamera;
 		float m_InertiaInertia;
 
 		// Engine
 		MotorSpecification m_EngineSpec;
+		Camera m_EngineCamera;
 		MotorSpecification m_EngineCurrentSpec;
 		float m_EngineDeltaTime        = 0.01f;
 		float m_EngineCurrentDeltaTime = 0.01f;
