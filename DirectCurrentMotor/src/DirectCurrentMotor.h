@@ -42,9 +42,9 @@ namespace DCM {
 		void Display_Engine();
 
 	private:
-		Engine m_Engine;
-		bool m_EngineFocused = false;
-		bool m_EngineHovered = false;
+		Engine m_Simulation;
+		bool m_SimulationFocused = false;
+		bool m_SimulationHovered = false;
 		// Torque
 		MotorSpecification m_TorqueSpec;
 		Camera m_TorqueCamera;

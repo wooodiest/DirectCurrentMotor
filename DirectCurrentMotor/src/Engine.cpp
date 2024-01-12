@@ -9,6 +9,9 @@ namespace DCM {
 	{
 		SetViewportSize(1280.0f, 720.0f);
 
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glGenVertexArrays(1, &m_VertexArray);
 		glBindVertexArray(m_VertexArray);
@@ -18,6 +21,10 @@ namespace DCM {
 			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+
+			-0.9f, -0.9f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f,
+			-0.5f, -0.9f,  0.2f, 0.0f, 1.0f, 0.3f, 1.0f,
+			-0.7f, -0.5f,  0.2f, 0.2f, 0.0f, 0.4f, 1.0f
 		};
 
 		glGenBuffers(1, &m_VertexBuffer);
@@ -56,7 +63,7 @@ namespace DCM {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
 
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		glClearColor(0.29f, 0.314f, 0.322f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Get Camera
@@ -68,7 +75,7 @@ namespace DCM {
 		m_Shader->SetMat4("u_MVP", viewProjection * model);
 
 		glBindVertexArray(m_VertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
