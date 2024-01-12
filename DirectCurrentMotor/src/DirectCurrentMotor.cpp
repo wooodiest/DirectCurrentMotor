@@ -91,9 +91,10 @@ namespace DCM {
 		m_InertiaCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 		m_EngineCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 
-		m_EngineActive = ImGui::IsWindowFocused();
-		if(m_EngineActive)
-			m_Engine.GetCamera()->OnUpdate(Luha::Application::Get().GetDeltaTime());
+		m_EngineFocused = ImGui::IsWindowFocused();
+		m_EngineHovered = ImGui::IsWindowHovered();
+
+		m_Engine.GetCamera()->OnUpdate(Luha::Application::Get().GetDeltaTime(), m_EngineFocused);
 
 		m_Engine.OnUpdate(Luha::Application::Get().GetDeltaTime());
 
@@ -116,7 +117,7 @@ namespace DCM {
 
 	void DirectCurrentMotor::OnEvent(Luha::Event& event)
 	{
-		if(m_EngineActive)
+		if(m_EngineFocused && m_EngineHovered)
 			m_Engine.OnEvent(event);
 	}
 

@@ -11,7 +11,7 @@ namespace DCM {
 		Camera();
 		~Camera();
 
-		void OnUpdate(Luha::Timestep ts);
+		void OnUpdate(Luha::Timestep ts, bool active);
 		void OnEvent(Luha::Event& e);
 
 		void SetViewportSize(float width, float height);

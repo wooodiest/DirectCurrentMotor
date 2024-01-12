@@ -19,15 +19,14 @@ namespace DCM {
 	{
 	}
 
-	void Camera::OnUpdate(Luha::Timestep ts)
+	void Camera::OnUpdate(Luha::Timestep ts, bool active)
 	{
-		
-		if (Luha::Input::IsKeyPressed(Luha::KeyCode::LeftControl) && Luha::Input::IsMouseButtonPressed(Luha::Mouse::ButtonLeft))
-		{
-			const glm::vec2& mouse = { Luha::Input::GetMousePositionX(), Luha::Input::GetMousePositionY() };
-			glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
-			m_InitialMousePosition = mouse;
+		const glm::vec2& mouse = { Luha::Input::GetMousePositionX(), Luha::Input::GetMousePositionY() };
+		glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
+		m_InitialMousePosition = mouse;
 
+		if (active && Luha::Input::IsMouseButtonPressed(Luha::Mouse::ButtonLeft))
+		{
 			MouseRotate(delta);
 			RecalculateView();	
 		}

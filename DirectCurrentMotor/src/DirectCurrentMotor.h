@@ -43,7 +43,8 @@ namespace DCM {
 
 	private:
 		Engine m_Engine;
-		bool m_EngineActive = false;
+		bool m_EngineFocused = false;
+		bool m_EngineHovered = false;
 		// Torque
 		MotorSpecification m_TorqueSpec;
 		Camera m_TorqueCamera;
