@@ -515,6 +515,7 @@ namespace Luha {
 			}
 
 			// Vsync
+			/*
 			ImGui::Separator();
 			bool vsync = GetWindow().IsVSync();
 			if (ImGui::MenuItem("Vsync##MainMenuVsync", "", &vsync))
@@ -522,7 +523,8 @@ namespace Luha {
 				GetWindow().SetVSync(vsync);
 				SerializeApplication();
 			}
-			
+			*/
+					
 			// Theme
 			ImGui::Separator();
 			if (ImGui::BeginMenu("Theme##MainMenuTheme"))

@@ -14,4 +14,6 @@ namespace Utils
 
 	float DegToRad(float deg);
 	float RadToDeg(float rad);
+
+	void ConvertObjToArray(const std::string& filepath, float*& verticies, unsigned int*& indices, size_t& vertexCount, size_t& indexCount);
 }

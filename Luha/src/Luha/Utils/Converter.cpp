@@ -2,6 +2,9 @@
 
 #include "Luha/Utils/Converter.h"
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 namespace Utils {
 
@@ -34,5 +37,44 @@ namespace Utils {
 	{
 		return rad * 180.0f / M_PI;
 	}
+
+    void ConvertObjToArray(const std::string& filepath, float*& v, unsigned int*& i, size_t& vertexCount, size_t& indexCount)
+    {
+        std::ifstream objFile(filepath);
+        std::string line;
+        std::vector<float> vertices;
+        std::vector<unsigned int> indices;
+
+        while (std::getline(objFile, line))
+        {
+            std::istringstream iss(line);
+            std::string type;
+            iss >> type;
+
+            if (type == "v")
+            {
+                float x, y, z;
+                iss >> x >> y >> z;
+                vertices.push_back(x);
+                vertices.push_back(y);
+                vertices.push_back(z);
+            }
+            else if (type == "f")
+            {
+               
+            }
+        }
+
+        v = new float[vertices.size()];
+        i = new unsigned int[indices.size()];
+        vertexCount = vertices.size();
+        indexCount = indices.size();
+
+        for (int j = 0; j < vertexCount; j++)
+            v[j] = vertices[j];
+
+        for (int j = 0; j < indexCount; j++)
+            i[j] = indices[j];
+    }
 	
 }

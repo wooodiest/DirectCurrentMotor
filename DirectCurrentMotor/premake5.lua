@@ -24,6 +24,7 @@ project "DirectCurrentMotor"
 		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.Glad}",
+		"%{IncludeDir.OBJ_Loader}"
 	}
 
 	links

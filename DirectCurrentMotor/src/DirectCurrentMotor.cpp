@@ -44,6 +44,8 @@ namespace DCM {
 		LH_PROFILE_FUNCTION();
 
 		Deserialize();
+
+		UpdateEngineFirstFrame();
 	}
 
 	void DirectCurrentMotor::OnDetach()
@@ -81,9 +83,9 @@ namespace DCM {
 		ImGui::Begin("   Simulation   ");
 		switch (m_LastFocused)
 		{	
-			case DCM::DCM_Windows::Torque:  m_Simulation.SetData(m_TorqueSpec,        m_TorqueCamera);  break;
-			case DCM::DCM_Windows::Inertia: m_Simulation.SetData(m_InertiaSpec,       m_InertiaCamera); break;
-			case DCM::DCM_Windows::Engine:  m_Simulation.SetData(m_EngineCurrentSpec, m_EngineCamera);  break;
+			case DCM::DCM_Windows::Torque:  m_Simulation.SetData(m_TorqueSpec,        m_TorqueCamera,  m_TorqueSpec.Alpha);       break;
+			case DCM::DCM_Windows::Inertia: m_Simulation.SetData(m_InertiaSpec,       m_InertiaCamera, m_InertiaSpec.Alpha);      break;
+			case DCM::DCM_Windows::Engine:  m_Simulation.SetData(m_EngineCurrentSpec, m_EngineCamera,  m_EngineSimulationAlpha);  break;
 		}
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_Simulation.   SetViewportSize(viewportSize.x, viewportSize.y);
@@ -116,7 +118,7 @@ namespace DCM {
 
 	void DirectCurrentMotor::OnEvent(Luha::Event& event)
 	{
-		if(m_SimulationFocused && m_SimulationHovered)
+		if(m_SimulationHovered)
 			m_Simulation.OnEvent(event);
 	}
 
@@ -188,50 +190,29 @@ namespace DCM {
 		{
 			const float buttonSpacing = 5.0f;
 			ImVec2 buttonSize = { (viewportSize.x - buttonSpacing) / 2, 0.0f };
-			if (ImGui::Button("  Start  ", buttonSize))
-			{
-				if (m_EngineCurrentLiveTime == 0.0f)
-				{
-					m_EngineAlpha.Erase();
-					m_EngineAngularVelocity.Erase();
-					m_EngineAngularAcceleration.Erase();
-					m_EngineTorque.Erase();
-
-					m_EngineCurrentSpec      = m_EngineSpec;
-					m_EngineCurrentDeltaTime = m_EngineDeltaTime;
-					
-					m_EngineInertia =
-						(m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.Mass) /
-						(m_EngineCurrentSpec.FrameSide_A + m_EngineCurrentSpec.FrameSide_B) *
-						(m_EngineCurrentSpec.FrameSide_B / 4.0f + 2.0f / 3.0f * m_EngineCurrentSpec.FrameSide_A);
-
-					m_Engine_K = m_EngineCurrentSpec.Current * m_EngineCurrentSpec.MagneticField * m_EngineCurrentSpec.FrameSide_A
-						* m_EngineCurrentSpec.FrameSide_B * m_EngineCurrentSpec.NumberOfWires;
-
-					m_Engine_KI = m_Engine_K / m_EngineInertia;
-
-					m_EngineAngularVelocity.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.AngularVelocity);
-					m_EnginePrevAngularVelocity = m_EngineCurrentSpec.AngularVelocity;
-					m_EngineAlpha.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.Alpha);
-					m_EnginePrevAlpha = m_EngineCurrentSpec.Alpha;
-					float torque = m_Engine_K * std::sin(m_EnginePrevAlpha);
-					m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
-					m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineInertia);
-				}
+			
+			const char* buttonName = m_EngineCurrentLiveTime == 0.0f ? "   Start   " : "   Resume   ";
+			if (ImGui::Button(buttonName, buttonSize))
 				m_EnginePaused = false;
-			}
+			
 			ImGui::SameLine(0.0f, buttonSpacing);
 			if (ImGui::Button("  Reset  ", buttonSize))
-			{
 				m_EngineCurrentLiveTime = 0.0f;
-			}
 		}
 		else
 		{
 			if (ImGui::Button("  Stop  ", { viewportSize.x, 0.0f }))
-			{
-				m_EnginePaused = true;
-			}
+				m_EnginePaused = true;		
+		}
+
+		if (m_EngineCurrentLiveTime == 0.0f)
+		{
+			m_EngineAlpha.Erase();
+			m_EngineAngularVelocity.Erase();
+			m_EngineAngularAcceleration.Erase();
+			m_EngineTorque.Erase();
+
+			UpdateEngineFirstFrame();
 		}
 
 		// Calculate
@@ -249,6 +230,7 @@ namespace DCM {
 				m_EnginePrevAngularVelocity = angularVelocity;
 
 				float alpha = m_EnginePrevAlpha + m_EngineCurrentDeltaTime * angularVelocity;
+				m_EngineSimulationAlpha = alpha;
 				m_EngineAlpha.AddPoint(m_EngineCurrentLiveTime, alpha);
 				m_EnginePrevAlpha = alpha;
 
@@ -309,7 +291,35 @@ namespace DCM {
 
 			ImPlot::PopStyleColor();
 			ImPlot::EndAlignedPlots();
-		}	
+		}
+	}
+
+	void DirectCurrentMotor::UpdateEngineFirstFrame()
+	{
+		m_EngineCurrentSpec = m_EngineSpec;
+		m_EngineCurrentDeltaTime = m_EngineDeltaTime;
+
+		m_EngineInertia =
+			(m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.Mass) /
+			(m_EngineCurrentSpec.FrameSide_A + m_EngineCurrentSpec.FrameSide_B) *
+			(m_EngineCurrentSpec.FrameSide_B / 4.0f + 2.0f / 3.0f * m_EngineCurrentSpec.FrameSide_A);
+
+		m_Engine_K = m_EngineCurrentSpec.Current * m_EngineCurrentSpec.MagneticField * m_EngineCurrentSpec.FrameSide_A
+			* m_EngineCurrentSpec.FrameSide_B * m_EngineCurrentSpec.NumberOfWires;
+
+		m_Engine_KI = m_Engine_K / m_EngineInertia;
+
+		m_EngineAngularVelocity.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.AngularVelocity);
+		m_EnginePrevAngularVelocity = m_EngineCurrentSpec.AngularVelocity;
+
+		m_EngineAlpha.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.Alpha);
+		m_EngineSimulationAlpha = m_EngineCurrentSpec.Alpha;
+		m_EnginePrevAlpha = m_EngineCurrentSpec.Alpha;
+
+		float torque = m_Engine_K * std::sin(m_EnginePrevAlpha);
+		m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
+
+		m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineInertia);
 	}
 
 	void DirectCurrentMotor::Serialize()

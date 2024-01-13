@@ -80,11 +80,11 @@ namespace DCM {
 	void Camera::MouseZoom(float delta)
 	{
 		m_Distance -= delta * ZoomSpeed();
-		if (m_Distance < 1.0f)
-		{
-			m_FocalPoint += GetForwardDirection();
-			m_Distance = 1.0f;
-		}
+		if (m_Distance < m_MinDistance)
+			m_Distance = m_MinDistance;
+		else if (m_Distance > m_MaxDistance)
+			m_Distance = m_MaxDistance;
+		
 	}
 
 	glm::vec3 Camera::GetUpDirection() const
@@ -119,7 +119,7 @@ namespace DCM {
 
 	float Camera::ZoomSpeed() const
 	{
-		float distance = m_Distance * 0.4f;
+		float distance = m_Distance * 0.3f;
 		distance = std::max(distance, 0.0f);
 		float speed = distance * distance;
 		speed = std::min(speed, 100.0f);

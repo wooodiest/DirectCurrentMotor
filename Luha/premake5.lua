@@ -38,7 +38,8 @@ project "Luha"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.OBJ_Loader}"
 	}
 
 	links 

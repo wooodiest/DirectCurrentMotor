@@ -46,9 +46,11 @@ namespace DCM {
 
 		float m_ViewportWidth  = 1280.0f;
 		float m_ViewportHeight = 720.0f;
-		float m_Pitch          = 0.0f;
+		float m_Pitch          = glm::radians(30.0f);
 		float m_Yaw            = 0.0f;
-		float m_Distance       = 2.0f;
+		float m_Distance       = 15.0f;
+		float m_MaxDistance    = 100.0f;
+		float m_MinDistance    = 1.0f;
 
 		float m_FOV = 45.0f;
 		float m_Near           = 0.01f;

@@ -5,9 +5,8 @@
 #include <cmath>
 #include <memory>
 
-#include "Engine.h"
+#include "Simulation.h"
 #include "MotorSpecification.h"
-#include "Engine.h"
 #include "Camera.h"
 
 namespace DCM {
@@ -42,7 +41,7 @@ namespace DCM {
 		void Display_Engine();
 
 	private:
-		Engine m_Simulation;
+		Simulation m_Simulation;
 		bool m_SimulationFocused = false;
 		bool m_SimulationHovered = false;
 		// Torque
@@ -56,8 +55,10 @@ namespace DCM {
 		float m_InertiaInertia;
 
 		// Engine
+		void UpdateEngineFirstFrame();
 		MotorSpecification m_EngineSpec;
 		Camera m_EngineCamera;
+		float m_EngineSimulationAlpha = 0.0f;
 		MotorSpecification m_EngineCurrentSpec;
 		float m_EngineDeltaTime        = 0.01f;
 		float m_EngineCurrentDeltaTime = 0.01f;
