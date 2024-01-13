@@ -105,8 +105,8 @@ namespace DCM {
 		ImGui::PopStyleVar();
 
 		// Other
-		ImGui::Begin("   Stats   ");
-		ImGui::Text("JD");
+		ImGui::Begin("   Options   ");
+		m_Simulation.RenderOptions();
 		ImGui::End();
 	}
 

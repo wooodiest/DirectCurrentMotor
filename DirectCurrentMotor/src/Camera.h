@@ -15,10 +15,12 @@ namespace DCM {
 		void OnEvent(Luha::Event& e);
 
 		void SetViewportSize(float width, float height);
+		void ResetCamera();
 
 		const glm::mat4& GetProjection() const { return m_Projection; }
 		const glm::mat4& GetView() const { return m_View; }
 		const glm::mat4& GetViewProjection() const { return m_Projection * m_View; }
+		float GetDistance() const { return m_Distance; }
 
 	private:
 		void RecalculateProjection();
@@ -47,12 +49,12 @@ namespace DCM {
 		float m_ViewportWidth  = 1280.0f;
 		float m_ViewportHeight = 720.0f;
 		float m_Pitch          = glm::radians(30.0f);
-		float m_Yaw            = 0.0f;
+		float m_Yaw            = glm::radians(-30.0f);
 		float m_Distance       = 15.0f;
 		float m_MaxDistance    = 100.0f;
-		float m_MinDistance    = 1.0f;
+		float m_MinDistance    = 10.0f;
 
-		float m_FOV = 45.0f;
+		float m_FOV            = 45.0f;
 		float m_Near           = 0.01f;
 		float m_Far            = 1000.0f;
 		float m_AspectRatio    = 1.778f;

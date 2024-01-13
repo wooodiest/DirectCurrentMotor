@@ -57,6 +57,14 @@ namespace DCM {
 		}	
 	}
 
+	void Camera::ResetCamera()
+	{
+		m_Pitch = 0.0f;
+		m_Yaw = 0.0f;
+		m_Distance = 15.0f;
+		RecalculateView();
+	}
+
 	void Camera::RecalculateView()
 	{
 		m_Position = CalculatePosition();

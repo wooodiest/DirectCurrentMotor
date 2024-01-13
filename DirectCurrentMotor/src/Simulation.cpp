@@ -17,7 +17,14 @@ namespace DCM {
 	Simulation::Simulation()
 	{
 		SetViewportSize(1280.0f, 720.0f);
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		m_EngineShader = new Shader("assets/shaders/default.vert.glsl", "assets/shaders/default.frag.glsl");
+		m_CoordShader = new Shader("assets/shaders/coord.vert.glsl", "assets/shaders/coord.frag.glsl");
+
 		// Engine model
 		{
 			std::vector<float> coords, normals;
@@ -30,10 +37,6 @@ namespace DCM {
 
 			for (int i = 0; i < engineVertexCount; i++)
 				engineFrame[i].Position = { coords[3 * i], coords[3 * i + 1], coords[3 * i + 2] };
-
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			glGenVertexArrays(1, &m_EngineVertexArray);
 			glBindVertexArray(m_EngineVertexArray);
@@ -49,21 +52,54 @@ namespace DCM {
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
 		}	
+		// Coordinate system
+		{
+			glGenVertexArrays(1, &m_CoordVertexArray);
+			glBindVertexArray(m_CoordVertexArray);
+
+			float vertices[] =
+			{
+				-1.0f,  0.0f,  0.0f, 0.0, 0.0f, 1.0f, 1.0f,
+				 1.0f,  0.0f,  0.0f, 0.0, 0.0f, 1.0f, 1.0f,
+
+				 0.0f, -1.0f,  0.0f, 0.0, 1.0f, 0.0f, 1.0f,
+				 0.0f,  1.0f,  0.0f, 0.0, 1.0f, 0.0f, 1.0f,
+
+				 0.0f,  0.0f, -1.0f, 1.0, 0.0f, 0.0f, 1.0f,
+				 0.0f,  0.0f,  1.0f, 1.0, 0.0f, 0.0f, 1.0f,
+			};
+
+			glGenBuffers(1, &m_CoordVertexBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, m_CoordVertexBuffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+
+			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
+		}
 	}
 
 	Simulation::~Simulation()
 	{
-		delete m_EngineShader;
-
 		// Frame buffer
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(1, &m_ColorAttachment);
 		glDeleteTextures(1, &m_DepthAttachment);
 		
 		// Engine
+		delete m_EngineShader;
 		glDeleteBuffers(1, &m_EngineVertexBuffer);
 		glDeleteBuffers(1, &m_EngineIndexBuffer);
 		glDeleteVertexArrays(1, &m_EngineVertexArray);	
+
+		/// Coordinate system
+		delete m_CoordShader;
+		glDeleteBuffers(1, &m_CoordVertexBuffer);
+		glDeleteVertexArrays(1, &m_CoordVertexArray);
+
 	}
 
 	void Simulation::SetData(MotorSpecification& spec, Camera& camera, float rotation)
@@ -85,6 +121,18 @@ namespace DCM {
 		// Get Camera
 		glm::mat4 viewProjection = m_Camera->GetViewProjection();
 
+		// Coordinate system
+		if(m_ShowGrid)
+		{
+			float scale = m_Camera->GetDistance();
+			m_CoordShader->Bind();
+			m_CoordShader->SetMat4("u_MVP", viewProjection 
+				* glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, 0.0f })
+				* glm::scale(glm::mat4(1.0f), { scale, scale, scale }));
+
+			glBindVertexArray(m_CoordVertexArray);
+			glDrawArrays(GL_LINES, 0, 6);
+		}
 		// Engine
 		{
 			m_EngineShader->Bind();
@@ -100,7 +148,7 @@ namespace DCM {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EngineIndexBuffer);
 			glDrawElements(GL_TRIANGLES, m_EngineIndicesCount, GL_UNSIGNED_INT, nullptr);
 		}
-
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -141,6 +189,16 @@ namespace DCM {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		}	
+	}
+
+	void Simulation::RenderOptions()
+	{
+		ImGui::Checkbox("Grid", &m_ShowGrid);
+		if (ImGui::Button("Reset Camera"))
+			m_Camera->ResetCamera();
+
+		
+		
 	}
 
 }

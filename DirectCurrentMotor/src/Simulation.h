@@ -29,6 +29,11 @@ namespace DCM {
 
 		void SetViewportSize(float width, float height);
 
+		void RenderOptions();
+
+	private:
+		bool m_ShowGrid = true;
+
 	private:
 		MotorSpecification* m_Spec;
 		Camera* m_Camera;
@@ -42,6 +47,11 @@ namespace DCM {
 		unsigned int m_EngineVertexBuffer, m_EngineIndexBuffer, m_EngineVertexArray;
 		unsigned int m_EngineIndicesCount = 0;
 		glm::vec3 m_EngineInitialRotation{ glm::radians(90.0f), 0.0f, 0.0f};
+		
+		// Coordinate system
+		Shader* m_CoordShader;
+		unsigned int m_CoordVertexBuffer, m_CoordVertexArray;
+
 	};
 
 }
