@@ -31,7 +31,6 @@ namespace DCM {
 		virtual void OnMenuRender() override;
 		virtual void OnEvent(Luha::Event& event) override;
 
-		// To save and load data safely, decide when to use it. Luha only calls Serialize() when saved (Ctrl+S)
 		virtual void Serialize() override;
 		virtual void Deserialize() override;
 
@@ -44,6 +43,8 @@ namespace DCM {
 		Simulation m_Simulation;
 		bool m_SimulationFocused = false;
 		bool m_SimulationHovered = false;
+		DCM_Windows m_LastFocused = DCM_Windows::Simulation;
+
 		// Torque
 		MotorSpecification m_TorqueSpec;
 		Camera m_TorqueCamera;
@@ -55,24 +56,16 @@ namespace DCM {
 		float m_InertiaInertia;
 
 		// Engine
-		void UpdateEngineFirstFrame();
+		void CalculateEngineFirstElement();
 		MotorSpecification m_EngineSpec;
-		Camera m_EngineCamera;
-		float m_EngineSimulationAlpha = 0.0f;
 		MotorSpecification m_EngineCurrentSpec;
-		float m_EngineDeltaTime        = 0.01f;
-		float m_EngineCurrentDeltaTime = 0.01f;
+		Camera m_EngineCamera;
 		float m_EngineCurrentLiveTime  = 0.0f;
-		float m_EngineInertia;
-		float m_Engine_K, m_Engine_KI;
-		float m_EnginePrevAngularVelocity, m_EnginePrevAlpha;
 		bool  m_EnginePaused           = true;
 		Utils::ScrollingBuffer m_EngineAlpha               { 5000 };
 		Utils::ScrollingBuffer m_EngineAngularVelocity     { 5000 };
 		Utils::ScrollingBuffer m_EngineAngularAcceleration { 5000 };
 		Utils::ScrollingBuffer m_EngineTorque              { 5000 };
-
-		DCM_Windows m_LastFocused = DCM_Windows::Simulation;
 
 	};
 

@@ -22,7 +22,7 @@ namespace DCM {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		m_EngineShader = new Shader("assets/shaders/default.vert.glsl", "assets/shaders/default.frag.glsl");
+		m_EngineShader = new Shader("assets/shaders/simulation.vert.glsl", "assets/shaders/simulation.frag.glsl");
 		m_CoordShader = new Shader("assets/shaders/coord.vert.glsl", "assets/shaders/coord.frag.glsl");
 
 		// Engine model
@@ -59,14 +59,14 @@ namespace DCM {
 
 			float vertices[] =
 			{
-				-1.0f,  0.0f,  0.0f, 0.0, 0.0f, 1.0f, 1.0f,
-				 1.0f,  0.0f,  0.0f, 0.0, 0.0f, 1.0f, 1.0f,
+				-1.0f,  0.0f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+				 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
 
-				 0.0f, -1.0f,  0.0f, 0.0, 1.0f, 0.0f, 1.0f,
-				 0.0f,  1.0f,  0.0f, 0.0, 1.0f, 0.0f, 1.0f,
+				 0.0f, -1.0f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+				 0.0f,  1.0f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 
-				 0.0f,  0.0f, -1.0f, 1.0, 0.0f, 0.0f, 1.0f,
-				 0.0f,  0.0f,  1.0f, 1.0, 0.0f, 0.0f, 1.0f,
+				 0.0f,  0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+				 0.0f,  0.0f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 			};
 
 			glGenBuffers(1, &m_CoordVertexBuffer);
@@ -95,18 +95,17 @@ namespace DCM {
 		glDeleteBuffers(1, &m_EngineIndexBuffer);
 		glDeleteVertexArrays(1, &m_EngineVertexArray);	
 
-		/// Coordinate system
+		// Coordinate system
 		delete m_CoordShader;
 		glDeleteBuffers(1, &m_CoordVertexBuffer);
 		glDeleteVertexArrays(1, &m_CoordVertexArray);
 
 	}
 
-	void Simulation::SetData(MotorSpecification& spec, Camera& camera, float rotation)
+	void Simulation::SetData(MotorSpecification& spec, Camera& camera)
 	{
 		m_Spec = &spec;
 		m_Camera = &camera;
-		m_Rotation = rotation;
 	}
 
 	void Simulation::OnUpdate(Luha::Timestep ts)
@@ -124,7 +123,7 @@ namespace DCM {
 		// Coordinate system
 		if(m_ShowGrid)
 		{
-			float scale = m_Camera->GetDistance();
+			const float scale = 100.0f;
 			m_CoordShader->Bind();
 			m_CoordShader->SetMat4("u_MVP", viewProjection 
 				* glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, 0.0f })
@@ -139,7 +138,7 @@ namespace DCM {
 
 			glm::mat4 model = 
 				glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, 0.0f }) *
-				glm::toMat4(glm::quat(m_EngineInitialRotation + glm::vec3(0.0f, 0.0f, glm::radians(90.0f) - m_Rotation))) *
+				glm::toMat4(glm::quat(m_EngineInitialRotation + glm::vec3(0.0f, 0.0f, glm::radians(90.0f) - m_Spec->PrevAlpha))) *
 				glm::scale(glm::mat4(1.0f), { 1.0f, 1.0f, 1.0f });
 
 			m_EngineShader->SetMat4("u_MVP", viewProjection * model);
@@ -195,9 +194,7 @@ namespace DCM {
 	{
 		ImGui::Checkbox("Grid", &m_ShowGrid);
 		if (ImGui::Button("Reset Camera"))
-			m_Camera->ResetCamera();
-
-		
+			m_Camera->ResetCamera();	
 		
 	}
 

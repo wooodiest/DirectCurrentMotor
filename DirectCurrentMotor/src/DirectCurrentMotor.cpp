@@ -44,8 +44,7 @@ namespace DCM {
 		LH_PROFILE_FUNCTION();
 
 		Deserialize();
-
-		UpdateEngineFirstFrame();
+		CalculateEngineFirstElement();
 	}
 
 	void DirectCurrentMotor::OnDetach()
@@ -83,9 +82,9 @@ namespace DCM {
 		ImGui::Begin("   Simulation   ");
 		switch (m_LastFocused)
 		{	
-			case DCM::DCM_Windows::Torque:  m_Simulation.SetData(m_TorqueSpec,        m_TorqueCamera,  m_TorqueSpec.Alpha);       break;
-			case DCM::DCM_Windows::Inertia: m_Simulation.SetData(m_InertiaSpec,       m_InertiaCamera, m_InertiaSpec.Alpha);      break;
-			case DCM::DCM_Windows::Engine:  m_Simulation.SetData(m_EngineCurrentSpec, m_EngineCamera,  m_EngineSimulationAlpha);  break;
+			case DCM::DCM_Windows::Torque:  m_Simulation.SetData(m_TorqueSpec,        m_TorqueCamera);  break;
+			case DCM::DCM_Windows::Inertia: m_Simulation.SetData(m_InertiaSpec,       m_InertiaCamera); break;
+			case DCM::DCM_Windows::Engine:  m_Simulation.SetData(m_EngineCurrentSpec, m_EngineCamera);  break;
 		}
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_Simulation.   SetViewportSize(viewportSize.x, viewportSize.y);
@@ -118,7 +117,7 @@ namespace DCM {
 
 	void DirectCurrentMotor::OnEvent(Luha::Event& event)
 	{
-		if(m_SimulationHovered)
+		if (m_SimulationHovered)
 			m_Simulation.OnEvent(event);
 	}
 
@@ -134,6 +133,7 @@ namespace DCM {
 		float alphaInDegrees = Utils::RadToDeg(m_TorqueSpec.Alpha);
 		ImGui::DragFloat("Alpha##Torque",          &alphaInDegrees,             drag_speed, min_alpha,           max_alpha,           "%.6f", flags);
 		m_TorqueSpec.Alpha = Utils::DegToRad(alphaInDegrees); 
+		m_TorqueSpec.PrevAlpha = m_TorqueSpec.Alpha;
 		ImGui::DragInt("Number of wires",          &m_TorqueSpec.NumberOfWires, drag_speed, min_number_of_wires, max_number_of_wires, "%d",   flags);
 
 		// Calculate
@@ -181,7 +181,7 @@ namespace DCM {
 		ImGui::DragFloat("Angular velocity##Engine",  &m_EngineSpec.AngularVelocity, drag_speed, min_angular_velocity, max_angular_velocity, "%.6f", flags);
 		m_EngineSpec.Alpha = Utils::DegToRad(alphaInDegrees);
 		ImGui::DragInt("Number of wires##Engine",     &m_EngineSpec.NumberOfWires,   drag_speed, min_number_of_wires,  max_number_of_wires,  "%d",   flags);
-		ImGui::DragFloat("Delta time##Engine",        &m_EngineDeltaTime,            drag_speed / 5000.0f, min_delta_time, max_delta_time,       "%.6f", flags);
+		ImGui::DragFloat("Delta time##Engine",        &m_EngineSpec.DeltaTime,       drag_speed / 5000.0f, min_delta_time, max_delta_time,       "%.6f", flags);
 
 		// Display menu
 		ImGui::SeparatorText("Simulation");
@@ -212,32 +212,31 @@ namespace DCM {
 			m_EngineAngularAcceleration.Erase();
 			m_EngineTorque.Erase();
 
-			UpdateEngineFirstFrame();
+			CalculateEngineFirstElement();
 		}
 
 		// Calculate
 		if (!m_EnginePaused)
 		{
-			int n = (int)(ImGui::GetIO().DeltaTime / m_EngineCurrentDeltaTime); // number of elements that will be calculated in single frame
+			int n = (int)(ImGui::GetIO().DeltaTime / m_EngineCurrentSpec.DeltaTime);
 			if (n <= 0) n = 1;
 
 			for (int i = 0; i < n; i++)
 			{
-				m_EngineCurrentLiveTime += m_EngineCurrentDeltaTime;
+				m_EngineCurrentLiveTime += m_EngineCurrentSpec.DeltaTime;
 
-				float angularVelocity = m_EnginePrevAngularVelocity + m_EngineCurrentDeltaTime * m_Engine_KI * std::sin(m_EnginePrevAlpha);
-				m_EngineAngularVelocity.AddPoint(m_EngineCurrentLiveTime, m_EnginePrevAlpha);
-				m_EnginePrevAngularVelocity = angularVelocity;
+				float angularVelocity = m_EngineCurrentSpec.PrevAngularVelocity + m_EngineCurrentSpec.DeltaTime * m_EngineCurrentSpec.Constance_KI * std::sin(m_EngineCurrentSpec.PrevAlpha);
+				m_EngineAngularVelocity.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.PrevAlpha);
+				m_EngineCurrentSpec.PrevAngularVelocity = angularVelocity;
 
-				float alpha = m_EnginePrevAlpha + m_EngineCurrentDeltaTime * angularVelocity;
-				m_EngineSimulationAlpha = alpha;
+				float alpha = m_EngineCurrentSpec.PrevAlpha + m_EngineCurrentSpec.DeltaTime * angularVelocity;
 				m_EngineAlpha.AddPoint(m_EngineCurrentLiveTime, alpha);
-				m_EnginePrevAlpha = alpha;
+				m_EngineCurrentSpec.PrevAlpha = alpha;
 
-				float torque = m_Engine_K * std::sin(alpha);
+				float torque = m_EngineCurrentSpec.Constance_K * std::sin(alpha);
 				m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
 
-				m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineInertia);			
+				m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineCurrentSpec.Inertia);			
 			}
 		}
 		// Display output
@@ -294,32 +293,30 @@ namespace DCM {
 		}
 	}
 
-	void DirectCurrentMotor::UpdateEngineFirstFrame()
+	void DirectCurrentMotor::CalculateEngineFirstElement()
 	{
 		m_EngineCurrentSpec = m_EngineSpec;
-		m_EngineCurrentDeltaTime = m_EngineDeltaTime;
 
-		m_EngineInertia =
+		m_EngineCurrentSpec.Inertia =
 			(m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.FrameSide_A * m_EngineCurrentSpec.Mass) /
 			(m_EngineCurrentSpec.FrameSide_A + m_EngineCurrentSpec.FrameSide_B) *
 			(m_EngineCurrentSpec.FrameSide_B / 4.0f + 2.0f / 3.0f * m_EngineCurrentSpec.FrameSide_A);
 
-		m_Engine_K = m_EngineCurrentSpec.Current * m_EngineCurrentSpec.MagneticField * m_EngineCurrentSpec.FrameSide_A
+		m_EngineCurrentSpec.Constance_K = m_EngineCurrentSpec.Current * m_EngineCurrentSpec.MagneticField * m_EngineCurrentSpec.FrameSide_A
 			* m_EngineCurrentSpec.FrameSide_B * m_EngineCurrentSpec.NumberOfWires;
 
-		m_Engine_KI = m_Engine_K / m_EngineInertia;
+		m_EngineCurrentSpec.Constance_KI = m_EngineCurrentSpec.Constance_K / m_EngineCurrentSpec.Inertia;
 
 		m_EngineAngularVelocity.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.AngularVelocity);
-		m_EnginePrevAngularVelocity = m_EngineCurrentSpec.AngularVelocity;
+		m_EngineCurrentSpec.PrevAngularVelocity = m_EngineCurrentSpec.AngularVelocity;
 
 		m_EngineAlpha.AddPoint(m_EngineCurrentLiveTime, m_EngineCurrentSpec.Alpha);
-		m_EngineSimulationAlpha = m_EngineCurrentSpec.Alpha;
-		m_EnginePrevAlpha = m_EngineCurrentSpec.Alpha;
+		m_EngineCurrentSpec.PrevAlpha = m_EngineCurrentSpec.Alpha;
 
-		float torque = m_Engine_K * std::sin(m_EnginePrevAlpha);
+		float torque = m_EngineCurrentSpec.Constance_K * std::sin(m_EngineCurrentSpec.PrevAlpha);
 		m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
 
-		m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineInertia);
+		m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineCurrentSpec.Inertia);
 	}
 
 	void DirectCurrentMotor::Serialize()
