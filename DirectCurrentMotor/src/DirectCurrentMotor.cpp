@@ -218,8 +218,9 @@ namespace DCM {
 		// Calculate
 		if (!m_EnginePaused)
 		{
-			int n = (int)(ImGui::GetIO().DeltaTime / m_EngineCurrentSpec.DeltaTime);
-			if (n <= 0) n = 1;
+			m_EngineFixedDeltaTimeHelper += ImGui::GetIO().DeltaTime > 1.0f / 60.0f ? 1.0f / 60.0f : ImGui::GetIO().DeltaTime; // Max delta time: 1.0f / 60.0f
+			int n = m_EngineFixedDeltaTimeHelper / m_EngineCurrentSpec.DeltaTime;
+			m_EngineFixedDeltaTimeHelper -= n * m_EngineCurrentSpec.DeltaTime;
 
 			for (int i = 0; i < n; i++)
 			{

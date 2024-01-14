@@ -61,6 +61,7 @@ namespace DCM {
 		MotorSpecification m_EngineCurrentSpec;
 		Camera m_EngineCamera;
 		float m_EngineCurrentLiveTime  = 0.0f;
+		float m_EngineFixedDeltaTimeHelper = 0.0f;
 		bool  m_EnginePaused           = true;
 		Utils::ScrollingBuffer m_EngineAlpha               { 5000 };
 		Utils::ScrollingBuffer m_EngineAngularVelocity     { 5000 };

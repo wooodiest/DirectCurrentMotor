@@ -12,7 +12,7 @@ ColorThema: 1
 PlotThema: 1
 PlotColor_Map: 3
 Font: 1
-FontSize: 23
+FontSize: 22
 LogToFile: true
 LogToConsole: true
 LuhaLogLevel: 2
