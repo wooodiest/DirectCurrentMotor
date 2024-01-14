@@ -114,14 +114,14 @@ namespace DCM {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
 
-		glClearColor(0.29f, 0.314f, 0.322f, 1.0f);
+		glClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Get Camera
 		glm::mat4 viewProjection = m_Camera->GetViewProjection();
 
 		// Coordinate system
-		if(m_ShowGrid)
+		if(m_ShowAxes)
 		{
 			const float scale = 100.0f;
 			m_CoordShader->Bind();
@@ -190,12 +190,11 @@ namespace DCM {
 		}	
 	}
 
-	void Simulation::RenderOptions()
+	void Simulation::DisplaySceneOptions()
 	{
-		ImGui::Checkbox("Grid", &m_ShowGrid);
-		if (ImGui::Button("Reset Camera"))
-			m_Camera->ResetCamera();	
-		
+		ImGui::ColorEdit4("Background color", &m_ClearColor.r);
+		ImGui::Checkbox("Show axes", &m_ShowAxes);
+
 	}
 
 }

@@ -5,9 +5,9 @@
 #include <cmath>
 #include <memory>
 
-#include "Simulation.h"
+#include "Simulation/Simulation.h"
+#include "Simulation/Camera.h"
 #include "MotorSpecification.h"
-#include "Camera.h"
 
 namespace DCM {
 
@@ -60,9 +60,9 @@ namespace DCM {
 		MotorSpecification m_EngineSpec;
 		MotorSpecification m_EngineCurrentSpec;
 		Camera m_EngineCamera;
-		float m_EngineCurrentLiveTime  = 0.0f;
+		float m_EngineCurrentLiveTime      = 0.0f;
 		float m_EngineFixedDeltaTimeHelper = 0.0f;
-		bool  m_EnginePaused           = true;
+		bool  m_EnginePaused               = true;
 		Utils::ScrollingBuffer m_EngineAlpha               { 5000 };
 		Utils::ScrollingBuffer m_EngineAngularVelocity     { 5000 };
 		Utils::ScrollingBuffer m_EngineAngularAcceleration { 5000 };

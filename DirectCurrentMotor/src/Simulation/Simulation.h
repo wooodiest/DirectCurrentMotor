@@ -29,14 +29,16 @@ namespace DCM {
 
 		void SetViewportSize(float width, float height);
 
-		void RenderOptions();
+		void DisplaySceneOptions();
 
 	private:
-		bool m_ShowGrid = true;
+		bool m_ShowAxes = true;
 
 	private:
 		MotorSpecification* m_Spec;
 		Camera* m_Camera;
+
+		glm::vec4 m_ClearColor = { 0.29f, 0.314f, 0.322f, 1.0f };
 
 		float m_ViewportWidth = 0, m_ViewportHeight = 0;
 		uint32_t m_RendererID = 0, m_ColorAttachment = 0, m_DepthAttachment = 0;

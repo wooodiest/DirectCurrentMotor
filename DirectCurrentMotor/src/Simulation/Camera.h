@@ -16,6 +16,9 @@ namespace DCM {
 
 		void SetViewportSize(float width, float height);
 		void ResetCamera();
+		void SetDefaultValues();
+
+		void DisplayCameraSettings();
 
 		const glm::mat4& GetProjection() const { return m_Projection; }
 		const glm::mat4& GetView() const { return m_View; }

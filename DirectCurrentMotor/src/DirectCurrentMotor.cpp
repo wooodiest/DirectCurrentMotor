@@ -104,8 +104,14 @@ namespace DCM {
 		ImGui::PopStyleVar();
 
 		// Other
-		ImGui::Begin("   Options   ");
-		m_Simulation.RenderOptions();
+		ImGui::Begin("   Simulation data   ");
+
+		if (ImGui::CollapsingHeader("Scene"))
+			m_Simulation.DisplaySceneOptions();
+
+		if (ImGui::CollapsingHeader("Camera"))
+			m_Simulation.GetCamera()->DisplayCameraSettings();
+
 		ImGui::End();
 	}
 

@@ -59,10 +59,82 @@ namespace DCM {
 
 	void Camera::ResetCamera()
 	{
+		m_FocalPoint = { 0.0f, 0.0f, 0.0f };
+		m_Position = { 0.0f, 0.0f, 0.0f };
 		m_Pitch = 0.0f;
 		m_Yaw = 0.0f;
 		m_Distance = 15.0f;
+
 		RecalculateView();
+	}
+
+	void Camera::SetDefaultValues()
+	{
+		m_Pitch          = glm::radians(30.0f);
+		m_Yaw            = glm::radians(-30.0f);
+		m_Distance       = 15.0f;
+		m_MaxDistance    = 100.0f;
+		m_MinDistance    = 10.0f;
+		m_FOV            = 45.0f;
+		m_Near           = 0.01f;
+		m_Far            = 1000.0f;
+
+		m_FocalPoint = { 0.0f, 0.0f, 0.0f };
+		m_Position = { 0.0f, 0.0f, 0.0f };
+
+		RecalculateView();
+		RecalculateProjection();
+	}
+
+	void Camera::DisplayCameraSettings()
+	{
+		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+		const float buttonSpacing = 5.0f;
+		ImVec2 buttonSize = { (viewportSize.x - buttonSpacing) / 2, 0.0f };
+
+		ImGui::Separator();
+
+		if (ImGui::Button("Reset##camera", buttonSize))
+			ResetCamera();
+		ImGui::SameLine(0.0f, buttonSpacing);
+		if (ImGui::Button("Set default##camera", buttonSize))
+			SetDefaultValues();
+
+		ImGui::Separator();
+
+		if (ImGui::DragFloat3("Focal point", &m_FocalPoint.x))
+			RecalculateView();
+		float pitch = Utils::RadToDeg(m_Pitch);
+		if (ImGui::DragFloat("Pitch", &pitch, 0.5f))
+		{
+			m_Pitch = Utils::DegToRad(pitch);
+			RecalculateView();
+		}
+		float yaw = Utils::RadToDeg(m_Yaw);
+		if (ImGui::DragFloat("Yaw", &yaw, 0.5f))
+		{
+			m_Yaw = Utils::DegToRad(yaw);
+			RecalculateView();
+		}
+		if (ImGui::DragFloat("Distance", &m_Distance, 0.25f, m_MinDistance, m_MaxDistance))
+			RecalculateView();
+
+		ImGui::DragFloat("Min distance", &m_MinDistance);
+		ImGui::DragFloat("Max distance", &m_MaxDistance);
+
+		ImGui::Separator();
+
+		if (ImGui::DragFloat("Fov", &m_FOV, 0.5f, 1.0f, 90.0f))
+			RecalculateProjection();
+		if (ImGui::DragFloat("Near clip", &m_Near, 0.5f))
+			RecalculateProjection();
+		if (ImGui::DragFloat("Far clip", &m_Far, 0.5f))
+			RecalculateProjection();
+
+		ImGui::Separator();
+
+		ImGui::Text("Viewport size: (%f, %f)", m_ViewportWidth, m_ViewportHeight);
+		ImGui::Text("Asspect ratio: %f", m_AspectRatio);
 	}
 
 	void Camera::RecalculateView()
@@ -133,7 +205,4 @@ namespace DCM {
 		speed = std::min(speed, 100.0f);
 		return speed;
 	}
-
-	
-
 }
