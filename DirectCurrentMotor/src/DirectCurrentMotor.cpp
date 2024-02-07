@@ -172,6 +172,23 @@ namespace DCM {
 		ImGui::TextColored(output_color, "Moment of inertia = %.6f", m_InertiaInertia);
 	}
 
+	static int CheckQuadrant(float radians)
+	{
+		float angle = fmod(radians, 2 * M_PI);
+
+		while (angle < 0.0f)
+			angle += 2 * M_PI;
+
+		if (angle >= 0.0f && angle < M_PI / 2.0f)
+			return 1;
+		if (angle >= M_PI / 2.0f && angle < M_PI)
+			return 2;
+		if (angle >= M_PI && angle < 3.0f * M_PI / 2.0f)
+			return 3;
+		if (angle >= 3.0f * M_PI / 2.0f && angle < 2.0f * M_PI)
+			return 4;
+	}
+
 	void DirectCurrentMotor::Display_Engine()
 	{
 		// Get data
@@ -243,7 +260,22 @@ namespace DCM {
 				float torque = m_EngineCurrentSpec.Constance_K * std::sin(alpha);
 				m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
 
-				m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineCurrentSpec.Inertia);			
+				m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineCurrentSpec.Inertia);
+
+				int quadrant = CheckQuadrant(M_PI / 2.0f - alpha);
+				if ((m_PrevQuadrant == 1 && quadrant == 2) ||
+					(m_PrevQuadrant == 3 && quadrant == 4) ||
+					(m_PrevQuadrant == 2 && quadrant == 1) ||
+					(m_PrevQuadrant == 4 && quadrant == 3))
+				{
+					m_EngineCurrentSpec.Current *= -1.0f;
+					
+					m_EngineCurrentSpec.Constance_K = m_EngineCurrentSpec.Current * m_EngineCurrentSpec.MagneticField * m_EngineCurrentSpec.FrameSide_A
+						* m_EngineCurrentSpec.FrameSide_B * m_EngineCurrentSpec.NumberOfWires;
+
+					m_EngineCurrentSpec.Constance_KI = m_EngineCurrentSpec.Constance_K / m_EngineCurrentSpec.Inertia;
+				}
+				m_PrevQuadrant = quadrant;
 			}
 		}
 		// Display output
@@ -324,6 +356,8 @@ namespace DCM {
 		m_EngineTorque.AddPoint(m_EngineCurrentLiveTime, torque);
 
 		m_EngineAngularAcceleration.AddPoint(m_EngineCurrentLiveTime, torque / m_EngineCurrentSpec.Inertia);
+
+		m_PrevQuadrant = CheckQuadrant(M_PI / 2.0f - m_EngineCurrentSpec.Alpha);
 	}
 
 	void DirectCurrentMotor::Serialize()

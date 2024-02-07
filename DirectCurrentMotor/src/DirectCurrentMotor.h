@@ -59,6 +59,7 @@ namespace DCM {
 		void CalculateEngineFirstElement();
 		MotorSpecification m_EngineSpec;
 		MotorSpecification m_EngineCurrentSpec;
+		int m_PrevQuadrant;
 		Camera m_EngineCamera;
 		float m_EngineCurrentLiveTime      = 0.0f;
 		float m_EngineFixedDeltaTimeHelper = 0.0f;
